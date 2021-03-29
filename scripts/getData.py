@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 def get_data(data_path="../data/SeoulBikeData.csv",testData = False):
     assert os.path.isfile(data_path), f"{os.path.realpath(data_path)} : File not exist"
 
-    df = pd.read_csv(data_path)
+    df = pd.read_csv(data_path, engine='python')
     df = df.select_dtypes(include=[np.number]) #select columns with numerical data
     df["target"] = df["Rented Bike Count"].apply(lambda x : 1 if  x > 500 else 0)
     df.drop(["Rented Bike Count"],axis=1,inplace=True)
