@@ -54,5 +54,7 @@ def main(args):
         for tag, parm in model.named_parameters():
             writer.add_histogram(tag, parm.grad.data.cpu().numpy(), epoch)
 
+    torch.save(model.state_dict(), "./trained_model.pth")
+
 if __name__ == '__main__':
     main(None)

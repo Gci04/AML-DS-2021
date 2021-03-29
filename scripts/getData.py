@@ -14,7 +14,9 @@ def get_data(data_path="../data/SeoulBikeData.csv",testData = False):
     df.drop(["Rented Bike Count"],axis=1,inplace=True)
 
     if testData :
-        xtrain, xtest, ytrain, ytest = train_test_split(df.drop(["target"],axis=1).values, df["target"].values.reshape(-1,1),test_size=0.20, random_state=42)
+        xtrain, ytrain = df.drop(["target"],axis=1).values[:7008], df["target"].values[:7008].reshape(-1,1)
+        xtest, ytest = df.drop(["target"],axis=1).values[7008:], df["target"].values[7008:].reshape(-1,1)
+        # xtrain, xtest, ytrain, ytest = train_test_split(df.drop(["target"],axis=1).values[7008], df["target"].values.reshape(-1,1),test_size=0.20, random_state=42)
         scaler = StandardScaler().fit(xtrain)
         xtrain = torch.from_numpy(scaler.transform(xtrain)).float()
         xtest = torch.from_numpy(scaler.transform(xtest)).float()
@@ -29,4 +31,5 @@ def get_data(data_path="../data/SeoulBikeData.csv",testData = False):
 
 
 if __name__ == '__main__':
+    pass
     # _,_ = get_data(testData=True)
