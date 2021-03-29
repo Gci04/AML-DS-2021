@@ -1,6 +1,6 @@
 # AML-DS-2021
 
-[![Build Status](https://dev.azure.com/mhew/data-science-template/_apis/build/status/equinor.data-science-template?branchName=master)](https://dev.azure.com/mhew/data-science-template/_build/latest?definitionId=5&branchName=master)
+[![Build Status](https://github.com/Gci04/AML-DS-2021/actions/workflows/setup.yml/badge.svg)](https://github.com/Gci04/AML-DS-2021/actions/workflows/setup.yml)
 
 This is a project for Advanced Machine Learning Course at innopolis university. It contains Seminars coding examples, homework exercises and Course project code.
 
