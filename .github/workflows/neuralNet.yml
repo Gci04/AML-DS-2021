@@ -28,17 +28,14 @@ jobs:
     #- uses: actions/checkout@v1
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         pip install flake8 pytest
-#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Change Dir
-      run: cd ./src
-    - name: working dir
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Train Model
       working-directory: ./src
-      run: pwd  
-#     - name: Train Model
-#       run: python train.py 
-#     - name: Test Model
-#       run: python test.py 
+      run: python train.py 
+    - name: Test Model
+      working-directory: ./src
+      run: python test.py 
