@@ -36,6 +36,7 @@ jobs:
     - name: Change Dir
       run: cd ./src
     - name: working dir
+      working-directory: ./src
       run: pwd  
 #     - name: Train Model
 #       run: python train.py 
