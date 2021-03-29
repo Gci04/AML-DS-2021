@@ -1,6 +1,7 @@
 # AML-DS-2021
 
 [![Build Status](https://github.com/Gci04/AML-DS-2021/actions/workflows/setup.yml/badge.svg)](https://github.com/Gci04/AML-DS-2021/actions/workflows/setup.yml)
+[![NN Model Test](https://github.com/Gci04/AML-DS-2021/actions/workflows/neuralNet.yml/badge.svg)](https://github.com/Gci04/AML-DS-2021/actions/workflows/neuralNet.yml)
 
 This is a project for Advanced Machine Learning Course at innopolis university. It contains Seminars coding examples, homework exercises and Course project code.
 
