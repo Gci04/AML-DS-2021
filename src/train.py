@@ -49,7 +49,7 @@ def main(args):
             l += (loss/size)
 
         if (epoch+1) % 10 == 0:
-            print("Epoch : {}, loss : {:.5f}".format(epoch+1,l))
+            print("Epoch : {}, loss :  {:.5f}".format(epoch+1,l))
         writer.add_scalar("train_loss", l, epoch)
         for tag, parm in model.named_parameters():
             writer.add_histogram(tag, parm.grad.data.cpu().numpy(), epoch)
