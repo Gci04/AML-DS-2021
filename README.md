@@ -80,9 +80,6 @@ To run tests, install pytest and unittest using pip or conda and then from the r
 ├── data                     <- Data files directory
 │   └── Data1                <- Dataset 1 directory
 │
-├── extras                   <- Miscellaneous extras.
-│   └── add_explorer_context_shortcuts.reg    <- Adds additional Windows Explorer context menus for starting jupyter.
-│
 ├── notebooks                <- Notebooks for analysis and testing
 │   ├── eda                  <- EDA Notebooks directory for
 │   │   └── eda1.ipynb       <- Example python notebook
