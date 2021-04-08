@@ -5,3 +5,4 @@ tensorflow>=2.4.1
 torch>=1.8.0
 pytest
 scikit-learn
+transformers
