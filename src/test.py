@@ -2,7 +2,8 @@ from torch import nn
 import torch
 import torch.utils.data as data_utils
 
-from scripts import get_data_name, accuracy
+from context import scripts
+import scripts
 
 
 class NeuralNetworkClassification(nn.Module):
@@ -63,8 +64,8 @@ class BetterLSTM(nn.Module):
 
 
 if __name__ == '__main__':
-    _, vocab = get_data_name("../data/data/train_eng.csv")
-    test_data, _ = get_data_name("../data/data/test_eng.csv")
+    _, vocab = scripts.get_data_name("../data/data/train_eng.csv")
+    test_data, _ = scripts.get_data_name("../data/data/test_eng.csv")
 
     target_test = torch.tensor(test_data["Gender"].values).to(torch.long)
     features_test = torch.Tensor(list(test_data["Name"].values)).to(torch.long)
@@ -82,9 +83,9 @@ if __name__ == '__main__':
     model_baseline.eval()
     model_better_baseline.eval()
 
-    model_classical_acc = accuracy(model_classical, test_loader)
-    model_baseline_acc = accuracy(model_baseline, test_loader)
-    model_better_baseline_acc = accuracy(model_better_baseline, test_loader)
+    model_classical_acc = scripts.accuracy(model_classical, test_loader)
+    model_baseline_acc = scripts.accuracy(model_baseline, test_loader)
+    model_better_baseline_acc = scripts.accuracy(model_better_baseline, test_loader)
     print(f"Model Baseline Accuracy: {round(model_baseline_acc, 2)}%")
     print(f"Model Better LSTM Accuracy: {round(model_better_baseline_acc, 2)}%")
     print(f"Model Classical Accuracy: {round(model_classical_acc, 2)}%")

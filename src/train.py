@@ -6,8 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data_utils
 
 from context import scripts
-from scripts import accuracy
-from scripts.getData import get_data_name
+import scripts
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'  # get device for training model
 writer = SummaryWriter()
@@ -93,7 +92,7 @@ def train_model(model, train_DataLoader, test_DataLoader, device, writer, n_epoc
             l += (loss / size)
             f1 += f1_score(y.float(), torch.round(torch.sigmoid(ypred.data)).squeeze(1), average="macro") / size
 
-        curr_accuracy = accuracy(model, test_DataLoader)
+        curr_accuracy = scripts.accuracy(model, test_DataLoader)
         print(
             f"Epoch : {epoch + 1}, loss : {round(l.item(), 5)}, test accuracy: {round(curr_accuracy, 2)}, f1 average: {round(f1, 2)}")
         writer.add_scalar("train_loss", l, epoch)
@@ -105,8 +104,8 @@ def train_model(model, train_DataLoader, test_DataLoader, device, writer, n_epoc
 
 def main(args):
     # load data
-    test_data, _ = get_data_name("../data/data/test_eng.csv")
-    train_data, vocab = get_data_name("../data/data/train_eng.csv")
+    test_data, _ = scripts.get_data_name("../data/data/test_eng.csv")
+    train_data, vocab = scripts.get_data_name("../data/data/train_eng.csv")
 
     batch_size = 1000
 
