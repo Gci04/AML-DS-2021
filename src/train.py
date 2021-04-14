@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data_utils
 
+from context import scripts
 from scripts import accuracy
 from scripts.getData import get_data_name
 
