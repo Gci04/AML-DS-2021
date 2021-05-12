@@ -1,29 +1,31 @@
-import torch, os
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+
+import torch
+
+# Get training and testing set
+def get_data_collab(path: Path):
+    train = pd.read_csv(path / "train.csv")
+    test = pd.read_csv(path / "test.csv")
+    return train, test
 
 
-def get_data_name(path):
-    def padding(char_list):
-        char_list.extend([0] * (embedding_num - len(char_list)))
-        return char_list
+def dl_preprocess_data(data, batch_size=64):
+    user_ids = data['userId'].values - 1
+    movie_ids = data['movieId'].values - 1
+    ratings = data['rating'].values
+    users_num, movies_num = max(user_ids) + 1, max(movie_ids) + 1
+    batches = []
+    for i in range(0, len(ratings), batch_size):
+        offset = min(batch_size + i, len(ratings))
+        batches.append((
+            torch.tensor(user_ids[i: offset], dtype=torch.long),
+            torch.tensor(movie_ids[i: offset], dtype=torch.long),
+            torch.tensor(ratings[i: offset], dtype=torch.float)
+        ))
 
-    data = pd.read_csv(path)
-    data.sort_values(by="Name", key=lambda col: col.apply(lambda x: len(x)), inplace=True)
-    unique = list(set("".join(data["Name"])))
-    unique.sort()
-    vocab = dict(zip(unique, range(1, len(unique) + 1)))
-
-    # Get maximum number of characters
-    embedding_num = data["Name"].apply(lambda x: len(x)).max()
-
-    data["Name"] = data["Name"].apply(lambda string: padding([vocab[x] for x in list(string)]))
-    # One is M and Zero is F
-    data["Gender"] = data["Gender"].apply(lambda x: 1 if x == "M" else 0)
-    return data, vocab
+    return batches, users_num, movies_num
 
 
 if __name__ == '__main__':
