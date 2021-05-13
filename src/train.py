@@ -24,7 +24,7 @@ def main(args):
     base_model.save(Path.cwd())
 
     # Neural model
-    train_batches, users_num, movies_num = dl_preprocess_data(train, batch_size=256)
+    train_batches, users_num, movies_num = dl_preprocess_data(train, batch_size=128)
     nn_model = DLModel(users_num, movies_num)
     print(nn_model)
 

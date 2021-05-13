@@ -17,8 +17,8 @@ if __name__ == '__main__':
     print(f"BaseModel test MSE: {base_model.evaluate(test)}")
 
     # NN model testing
-    _, users_num, movies_num = dl_preprocess_data(train, batch_size=256)
-    test, _, _ = dl_preprocess_data(test, batch_size=256)
+    _, users_num, movies_num = dl_preprocess_data(train, batch_size=128)
+    test, _, _ = dl_preprocess_data(test, batch_size=128)
     nn_model = DLModel(users_num, movies_num)
     nn_model.load(Path.cwd(), device)
     print(f"DLModel test MSE: {nn_model.evaluate(test, device)}")
