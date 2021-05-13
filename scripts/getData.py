@@ -1,33 +1,31 @@
-import torch, os
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
-def get_data(data_path="../data/SeoulBikeData.csv",testData = False):
-    assert os.path.isfile(data_path), f"{os.path.realpath(data_path)} : File not exist"
+import torch
 
-    df = pd.read_csv(data_path, engine='python')
-    df = df.select_dtypes(include=[np.number]) #select columns with numerical data
-    df["target"] = df["Rented Bike Count"].apply(lambda x : 1 if  x > 500 else 0)
-    df.drop(["Rented Bike Count"],axis=1,inplace=True)
+# Get training and testing set
+def get_data_collab(path: Path):
+    train = pd.read_csv(path / "train.csv")
+    test = pd.read_csv(path / "test.csv")
+    return train, test
 
-    if testData :
-        xtrain, ytrain = df.drop(["target"],axis=1).values[:7008], df["target"].values[:7008].reshape(-1,1)
-        xtest, ytest = df.drop(["target"],axis=1).values[7008:], df["target"].values[7008:].reshape(-1,1)
-        # xtrain, xtest, ytrain, ytest = train_test_split(df.drop(["target"],axis=1).values[7008], df["target"].values.reshape(-1,1),test_size=0.20, random_state=42)
-        scaler = StandardScaler().fit(xtrain)
-        xtrain = torch.from_numpy(scaler.transform(xtrain)).float()
-        xtest = torch.from_numpy(scaler.transform(xtest)).float()
-        return DataLoader(TensorDataset(xtrain,torch.from_numpy(ytrain).float()), batch_size=30), DataLoader(TensorDataset(xtest,torch.from_numpy(ytest).float()))
 
-    scaler = StandardScaler().fit(df.drop(["target"],axis=1).values)
-    x = scaler.transform(df.drop(["target"],axis=1).values)
-    y = torch.from_numpy(df["target"].values.reshape(-1,1)).float()
-    x = torch.from_numpy(x).float()
+def dl_preprocess_data(data, batch_size=64):
+    user_ids = data['userId'].values - 1
+    movie_ids = data['movieId'].values - 1
+    ratings = data['rating'].values
+    users_num, movies_num = max(user_ids) + 1, max(movie_ids) + 1
+    batches = []
+    for i in range(0, len(ratings), batch_size):
+        offset = min(batch_size + i, len(ratings))
+        batches.append((
+            torch.tensor(user_ids[i: offset], dtype=torch.long),
+            torch.tensor(movie_ids[i: offset], dtype=torch.long),
+            torch.tensor(ratings[i: offset], dtype=torch.float)
+        ))
 
-    return DataLoader(TensorDataset(x,y), batch_size=30)
+    return batches, users_num, movies_num
 
 
 if __name__ == '__main__':

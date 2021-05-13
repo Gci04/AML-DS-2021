@@ -1,60 +1,56 @@
+from pathlib import Path
+
 import torch
-from torch import nn
-import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
-from context import scripts
+
+from context import scripts, BaseModel, DLModel
 import scripts
+from scripts.getData import get_data_collab, dl_preprocess_data
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu' # get device for training model
-writer = SummaryWriter()
+device = 'cuda' if torch.cuda.is_available() else 'cpu'  # get device for training model
 
-class NeuralNetworkClassification(nn.Module):
-    def __init__(self,input_dim=10,output_dim=1):
-        super(NeuralNetworkClassification, self).__init__()
-        self.layer1 = nn.Linear(input_dim, 50)
-        self.layer2 = nn.Linear(50, 25)
-        self.output = nn.Linear(25, output_dim)
-
-    def forward(self, x):
-        x = torch.tanh(self.layer1(x))
-        x = torch.relu(self.layer2(x))
-        x = torch.sigmoid(self.output(x))
-        return x
 
 def main(args):
+    torch.manual_seed(42)
 
-    #load data
-    train_DataLoader, _  = scripts.get_data(data_path="../data/SeoulBikeData.csv",testData = True)
-    # train_DataLoader = DataLoader(TensorDataset(train_x, train_y), batch_size=30)
+    # Load data
+    train, test = get_data_collab(Path("../data/collaborative-filtering/"))
 
-    model = NeuralNetworkClassification(input_dim=9).float()
+    # # Train base model
+    base_model = BaseModel()
+    print("Base model training started")
+    base_model.train(train)
+    print("Base model training ended")
+    base_model.save(Path.cwd())
 
-    lr = 1e-1
-    n_epochs = 100
-    loss_fn = nn.BCELoss(reduction='mean')
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    # Neural model
+    train_batches, users_num, movies_num = dl_preprocess_data(train, batch_size=128)
+    nn_model = DLModel(users_num, movies_num)
+    print(nn_model)
 
-    size = len(train_DataLoader.dataset)
-    for epoch in range(n_epochs):
-        l = 0.0
-        for X,y in train_DataLoader:
-            model.train() #set model to training mode
-            ypred = model(X) #Foward pass
-            loss = loss_fn(ypred,y.float()) # Calcutation of loss
+    # NN training
+    epochs_num = 10
+    criterion = torch.nn.MSELoss(reduction="mean")
+    optim = torch.optim.Adam(nn_model.parameters(), lr=1e-3)
+
+    for epoch in range(epochs_num):
+        epoch_loss = 0
+        for users, movies, ratings in train_batches:
+            users.to(device)
+            movies.to(device)
+            ratings.to(device)
+
+            nn_model.zero_grad()
+            output = nn_model.forward(users, movies).squeeze()
+            loss = criterion(ratings, output)
             loss.backward()
+            optim.step()
+            epoch_loss += loss
+        error = epoch_loss / len(train_batches)
+        print(f"Epoch {epoch + 1}: loss: {error:.5f}")
 
-            optimizer.step()
-            optimizer.zero_grad()
+    nn_model.save(Path().cwd())
 
-            l += (loss/size)
-
-        if (epoch+1) % 10 == 0:
-            print("Epoch : {}, loss :  {:.5f}".format(epoch+1,l))
-        writer.add_scalar("train_loss", l, epoch)
-        for tag, parm in model.named_parameters():
-            writer.add_histogram(tag, parm.grad.data.cpu().numpy(), epoch)
-
-    torch.save(model.state_dict(), "./trained_model.pth")
 
 if __name__ == '__main__':
     main(None)

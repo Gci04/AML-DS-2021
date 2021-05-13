@@ -1,0 +1,7 @@
+numpy
+pandas
+matplotlib
+pytest
+scikit-learn
+fastapi
+uvicorn

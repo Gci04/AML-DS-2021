@@ -1,46 +1,31 @@
-from context import scripts
-import scripts
-from torch import nn
+from pathlib import Path
+import time
 import torch
-import numpy as np
-from sklearn.metrics import accuracy_score
 
-class NeuralNetworkClassification(nn.Module):
-    def __init__(self,input_dim=10,output_dim=1):
-        super(NeuralNetworkClassification, self).__init__()
-        self.layer1 = nn.Linear(input_dim, 50)
-        self.layer2 = nn.Linear(50, 25)
-        self.output = nn.Linear(25, output_dim)
+from context import scripts, BaseModel, DLModel
+import scripts
+from scripts import get_data_collab, dl_preprocess_data
 
-    def forward(self, x):
-        x = torch.tanh(self.layer1(x))
-        x = torch.relu(self.layer2(x))
-        x = torch.sigmoid(self.output(x))
-        return x
-
-# evaluate the model
-def evaluate_model(test_dl, model):
-    predictions, actuals = list(), list()
-    for inputs, targets in test_dl:
-        yhat = model(inputs)
-        yhat = yhat.detach().numpy()
-        actual = targets.numpy()
-        actual = actual.reshape((len(actual), 1))
-        # round to class values
-        yhat = yhat.round()
-        predictions.append(yhat)
-        actuals.append(actual)
-    predictions, actuals = np.vstack(predictions), np.vstack(actuals)
-    # calculate accuracy
-    acc = accuracy_score(actuals, predictions)
-    return acc
-
+device = 'cuda' if torch.cuda.is_available() else 'cpu'  # get device for training model
 
 if __name__ == '__main__':
-    _,testDataLoader = scripts.get_data(data_path="../data/SeoulBikeData.csv",testData = True)
-    model = NeuralNetworkClassification(input_dim=9)
-    model.load_state_dict(torch.load("./trained_model.pth"))
+    train, test = get_data_collab(Path("../data/collaborative-filtering/"))
 
-    model.eval()
-    model_acc = evaluate_model(testDataLoader,model)
-    print("Model Accuracy : {:.1f}%".format(model_acc*100))
+    # Base model testing
+    base_model = BaseModel()
+    base_model.load(Path.cwd())
+    print(f"BaseModel test MSE: {base_model.evaluate(test)}")
+
+    # NN model testing
+    _, users_num, movies_num = dl_preprocess_data(train, batch_size=128)
+    test, _, _ = dl_preprocess_data(test, batch_size=128)
+    nn_model = DLModel(users_num, movies_num)
+    nn_model.load(Path.cwd(), device)
+    print(f"DLModel test MSE: {nn_model.evaluate(test, device)}")
+
+    start_time = time.time()
+    print("Top-5 movie suggestions of base model for user 1: ", base_model.predict(user_id=1))
+    print(f"BaseModel inference time: {time.time() - start_time}")
+    start_time = time.time()
+    print("Top-5 movie suggestions of NN model for user 1: ", nn_model.predict(user_id=1, movies_num=movies_num))
+    print(f"NN model inference time: {time.time() - start_time}")
